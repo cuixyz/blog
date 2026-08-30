@@ -1,0 +1,48 @@
+---
+layout: layouts/home.njk
+showPostHeader: false
+permalink: /series/
+eleventyComputed:
+  title: "{{ ui.pages.series.title }}"
+  description: "{{ ui.pages.series.description }}"
+---
+
+{% set seriesList = visibleSeries | default([]) %}
+
+<section class="mw7 center">
+  <header class="mb5">
+    <h1 class="f3 f2-ns lh-title mt0 mb3">{{ ui.pages.series.heading }}</h1>
+    <p class="f5 f4-ns lh-copy mt0 mb0 theme-midtone">
+      {{ ui.pages.series.intro }}
+    </p>
+  </header>
+
+  {% if seriesList | length %}
+    <div class="flex flex-column">
+      {% for item in seriesList %}
+        <article class="mb4 pb4 bb b--black-10">
+          <h2 class="f3 lh-title mb2 mt0">
+            <a class="link dim theme-text" href="{{ ('/series/' ~ item.id ~ '/') | url }}">
+              {{ item.title }}
+            </a>
+          </h2>
+          <p class="f6 theme-midtone mt0 mb3">
+            {{ item.entries | length }} {{ ui.shared.counts.entry.singular if (item.entries | length) == 1 else ui.shared.counts.entry.plural }}
+          </p>
+          {% if item.intro %}
+            <p class="lh-copy mt0 mb3">
+              {{ item.intro }}
+            </p>
+          {% endif %}
+          <p class="mt0 mb0">
+            <a class="link dim fw5 theme-text underline" href="{{ ('/series/' ~ item.id ~ '/') | url }}">
+              {{ ui.shared.series.read }}
+            </a>
+          </p>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="theme-midtone">{{ ui.pages.series.emptyMessage }}</p>
+  {% endif %}
+</section>

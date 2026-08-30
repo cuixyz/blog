@@ -1,0 +1,60 @@
+---
+layout: layouts/home.njk
+showPostHeader: false
+permalink: /timeline/weeks/
+eleventyComputed:
+  title: "{{ ui.pages.timeline.weeksIndex.title }}"
+  description: "{{ ui.pages.timeline.weeksIndex.description }}"
+---
+
+{% from "components/timeline-week-pill.njk" import renderTimelineWeekPill %}
+
+{% set timelineUi = ui.pages.timeline %}
+{% set timelineMonthArchives = collections.timelineMonths | default([]) | reverse %}
+{% set calendarWeekArchives = collections.timelineCalendarWeeks | default([]) | reverse %}
+
+<section class="mw7">
+  <h1 class="f3 f2-ns lh-title mt0 mb4">
+    <a class="link dim theme-text" href="{{ sectionUrls.timeline }}">{{ timelineUi.labels.root }}</a>
+  </h1>
+  <h2 class="f3 f2-ns lh-title mt0 mb2">{{ timelineUi.weeksIndex.title }}</h2>
+  <p class="f6 f5-ns theme-midtone mt0 mb4">
+    {{ timelineUi.weeksIndex.intro }}
+  </p>
+
+  {% if timelineMonthArchives | length %}
+    <div>
+      {% for month in timelineMonthArchives %}
+        <section class="{% if not loop.first %}mt5{% endif %}">
+          <h2 class="f4 f3-ns lh-title mt0 mb3">
+            <a class="link dim theme-text" href="/timeline/months/{{ month.key }}/">{{ month.label }}</a>
+          </h2>
+
+          {% if month.weeks | length %}
+            <div class="mb3">
+              <p class="f6 theme-midtone mt0 mb2">{{ timelineUi.weeksIndex.monthBandedWeeksHeading }}</p>
+              <div class="flex flex-wrap">
+                {% for week in month.weeks | reverse %}
+                  {{ renderTimelineWeekPill(week, week.entryCount) }}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <div>
+            <p class="f6 theme-midtone mt0 mb2">{{ timelineUi.weeksIndex.calendarWeeksHeading }}</p>
+            <div class="flex flex-wrap">
+              {% for week in calendarWeekArchives %}
+                {% if week.startMonthKey == month.key or week.endMonthKey == month.key %}
+                  {{ renderTimelineWeekPill(week, week.entries | length) }}
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="theme-midtone">{{ timelineUi.emptyMessages.weeksIndex }}</p>
+  {% endif %}
+</section>

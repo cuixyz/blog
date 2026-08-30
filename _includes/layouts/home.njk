@@ -1,0 +1,457 @@
+---
+layout: layouts/base.njk
+---
+{% from "components/timeline-entry.njk" import renderTimelineEntry, renderTimelineStyles with context %}
+
+{% set siteThemeConfig = site.theme or {} %}
+{% set showThemeSelectors = siteThemeConfig.showSelectors if siteThemeConfig.showSelectors is defined else true %}
+{% set defaultTheme = themes | first %}
+{% set defaultThemeId = siteThemeConfig.defaultId if siteThemeConfig.defaultId is defined else (defaultTheme.id if defaultTheme is defined else null) %}
+{% set autoLightThemeId = siteThemeConfig.autoLightId if siteThemeConfig.autoLightId is defined else defaultThemeId %}
+{% set autoDarkThemeId = siteThemeConfig.autoDarkId if siteThemeConfig.autoDarkId is defined else 'terminal' %}
+{% set giscusConfig = site.giscus or {} %}
+{% set currentUrl = page.url or '/' %}
+{% set homeTargetId = site.home.target | default('blog') %}
+{% set isHomeRoot = currentUrl == '/' %}
+{% set isPostPage = currentUrl.indexOf('/posts/') == 0 or (isHomeRoot and homeTargetId == 'blog') %}
+{% set isNotePage = currentUrl.indexOf('/notes/') == 0 or (isHomeRoot and homeTargetId == 'notes') %}
+{% set isTimelinePage = currentUrl.indexOf('/timeline/') == 0 or (isHomeRoot and homeTargetId == 'timeline') %}
+{% set isPostDetailPage = currentUrl.indexOf('/posts/') == 0 and currentUrl != '/posts/' %}
+{% set isNoteDetailPage = currentUrl.indexOf('/notes/') == 0 and currentUrl != '/notes/' %}
+{% set isTimelineDetailPage = currentUrl.indexOf('/timeline/') == 0 and currentUrl != '/timeline/' %}
+{% set isArticlePage = isPostDetailPage or isNoteDetailPage %}
+{% set showComments = comments if comments is defined else true %}
+{% set timelineEntries = collections.timeline | default([]) %}
+{% set currentTimelineEntry = page.url | timelineEntryByRef(timelineEntries) if isTimelineDetailPage else null %}
+{% set timelineEarlierThread = currentTimelineEntry | timelineEarlierThreadEntries(timelineEntries) if currentTimelineEntry else [] %}
+{% set timelineFollowUpTree = currentTimelineEntry | timelineDescendantTree(timelineEntries, 2) if currentTimelineEntry else [] %}
+
+<div class="sans-serif">
+  {% if isTimelinePage %}
+    {{ renderTimelineStyles() }}
+  {% endif %}
+  <style>
+    /* Fade + Slide Keyframe Animations */
+    @keyframes slideFadeIn {
+      from { transform: translateY(-10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes slideFadeOut {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-10px); opacity: 0; }
+    }
+    .slide-fade-in { animation: slideFadeIn 0.3s ease forwards; }
+    .slide-fade-out { animation: slideFadeOut 0.3s ease forwards; }
+
+    /* Burger Menu Icon */
+    #nav-toggle { position: relative; width: 2rem; height: 2rem; color: inherit; }
+    .burger {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 1.5rem; height: 1.25rem;
+      transform: translate(-50%, -50%);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+    }
+    .burger div {
+      width: 100%; height: 2px;
+      background: currentColor;
+      transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease;
+    }
+    /* active state: hide middle patty, rotate buns */
+    #nav-toggle.opened .burger .patty {
+      opacity: 0;
+    }
+    #nav-toggle.opened .burger .top-bun {
+      transform: translateY(6px) rotate(45deg);
+      width: 100%;
+    }
+    #nav-toggle.opened .burger .bottom-bun {
+      transform: translateY(-6px) rotate(-45deg);
+      width: 100%;
+    }
+
+    [data-theme-preview],
+    [data-theme-mode-toggle] {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    [data-theme-preview]:focus,
+    [data-theme-mode-toggle]:focus {
+      outline: none;
+    }
+    [data-theme-preview][data-active],
+    [data-theme-mode-toggle][data-active] {
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+    }
+    [data-theme-preview]:hover,
+    [data-theme-mode-toggle]:hover {
+      transform: translateY(-2px);
+    }
+    [data-theme-mode-toggle] {
+      position: relative;
+    }
+    [data-theme-mode-toggle] .theme-mode-surface {
+      background: #f5f5f5;
+      color: #111;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    [data-theme-mode-toggle] .theme-mode-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .theme-auto-icon {
+      position: relative;
+      width: 0.9rem;
+      height: 0.9rem;
+      display: inline-block;
+      border: 1.5px solid currentColor;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, currentColor 0 50%, transparent 50% 100%);
+      overflow: hidden;
+      opacity: 0.9;
+    }
+    .theme-auto-icon::before {
+      content: '';
+      position: absolute;
+      top: 0.12rem;
+      bottom: 0.12rem;
+      left: 50%;
+      width: 1px;
+      transform: translateX(-50%);
+      background: currentColor;
+      opacity: 0.3;
+    }
+    .theme-auto-icon::after {
+      content: none;
+    }
+    html.theme[data-theme="sun"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="default"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="mint"] [data-theme-mode-toggle] .theme-auto-icon {
+      color: #111;
+    }
+    html.theme[data-theme="grape"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="charcoal"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="deep-blue"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="midnight"] [data-theme-mode-toggle] .theme-auto-icon,
+    html.theme[data-theme="terminal"] [data-theme-mode-toggle] .theme-auto-icon {
+      color: #f4f4f4;
+    }
+    .theme-mode-icon {
+      width: 1rem;
+      height: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+    .theme-mode-icon--light,
+    .theme-mode-icon--dark {
+      font-size: 0.9rem;
+    }
+    [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-icon--light,
+    [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-icon--dark,
+    [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-icon--auto,
+    [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-icon--dark,
+    [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-icon--auto,
+    [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-icon--light,
+    [data-theme-mode-toggle][data-theme-mode="custom"] .theme-mode-icon--light,
+    [data-theme-mode-toggle][data-theme-mode="custom"] .theme-mode-icon--dark {
+      display: none;
+    }
+    html.theme[data-theme="grape"] [data-theme-mode-toggle] .theme-mode-surface,
+    html.theme[data-theme="charcoal"] [data-theme-mode-toggle] .theme-mode-surface,
+    html.theme[data-theme="deep-blue"] [data-theme-mode-toggle] .theme-mode-surface,
+    html.theme[data-theme="midnight"] [data-theme-mode-toggle] .theme-mode-surface,
+    html.theme[data-theme="terminal"] [data-theme-mode-toggle] .theme-mode-surface {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f4f4f4;
+    }
+    html.theme[data-theme="grape"] [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-surface,
+    html.theme[data-theme="charcoal"] [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-surface,
+    html.theme[data-theme="deep-blue"] [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-surface,
+    html.theme[data-theme="midnight"] [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-surface,
+    html.theme[data-theme="terminal"] [data-theme-mode-toggle][data-theme-mode="auto"] .theme-mode-surface {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f4f4f4;
+    }
+    html.theme[data-theme="grape"] [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-surface,
+    html.theme[data-theme="charcoal"] [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-surface,
+    html.theme[data-theme="deep-blue"] [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-surface,
+    html.theme[data-theme="midnight"] [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-surface,
+    html.theme[data-theme="terminal"] [data-theme-mode-toggle][data-theme-mode="light"] .theme-mode-surface {
+      background: #f4f4f4;
+      color: #111;
+    }
+    html.theme[data-theme="sun"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="default"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="mint"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="grape"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="charcoal"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="deep-blue"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="midnight"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface,
+    html.theme[data-theme="terminal"] [data-theme-mode-toggle][data-theme-mode="dark"] .theme-mode-surface {
+      background: rgba(255, 255, 255, 0.08);
+      color: #f4f4f4;
+    }
+
+    .theme .theme-text,
+    .theme .theme-text:visited,
+    .theme .theme-text:hover,
+    .theme .theme-text:focus,
+    .theme .theme-text:active {
+      color: inherit;
+    }
+    @media screen and (min-width: 30em) {
+      [data-theme-selector] {
+        position: relative;
+      }
+      [data-theme-selector]::after {
+        content: '';
+        display: inline-block;
+        margin-left: 0.25rem;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid currentColor;
+        transition: transform 0.2s ease;
+      }
+      [data-theme-selector]:hover::after,
+      [data-theme-selector]:focus-within::after {
+        transform: rotate(180deg);
+      }
+      [data-theme-selector] .theme-preview-button {
+        display: none;
+      }
+      [data-theme-selector] .theme-preview-button[data-active] {
+        display: flex;
+      }
+      [data-theme-selector]:hover .theme-preview-button,
+      [data-theme-selector]:focus-within .theme-preview-button {
+        display: flex;
+      }
+    }
+  </style>
+
+  <!-- Site Title + Mobile Hamburger -->
+  <div class="pa4 flex items-center justify-between flex-wrap">
+    <a href="/" class="link dim f3 f2-ns fw6 ma0 tr tl-ns db theme-text">
+      {{ site.title }}
+    </a>
+    <div class="flex items-center mt3 mt0-ns flex-wrap justify-end">
+      {% if showThemeSelectors %}
+      <div class="flex items-center flex-nowrap ml3-ns ml2" data-theme-selector>
+        {% for theme in themes | reverse %}
+          {% if not theme.hidden %}
+                  <button type="button"
+                  class="theme-preview-button w2 h2 bn pointer br2 mr2 mb2 pa0 ba b--transparent bg-transparent flex items-center justify-center"
+                  data-theme-preview="{{ theme.id }}"
+                  aria-label="{{ ui.shared.theme.previewAriaTemplate | replace('{theme}', theme.label) }}">
+            <span class="w-100 h-100 br2 flex items-center justify-center {{ theme.classes | join(' ') }}">
+              Aa
+            </span>
+          </button>
+          {% endif %}
+        {% endfor %}
+        <button type="button"
+                class="w2 h2 bn pointer br2 mr2 mb2 pa0 ba b--transparent bg-transparent flex items-center justify-center"
+                data-theme-mode-toggle
+                data-active
+                data-theme-mode="auto"
+                title="{{ ui.shared.theme.modeLabelTemplate | replace('{mode}', ui.shared.theme.auto) }}"
+                aria-label="{{ ui.shared.theme.modeLabelTemplate | replace('{mode}', ui.shared.theme.auto) }}">
+          <span class="theme-mode-surface w-100 h-100 br2 flex items-center justify-center">
+            <span class="theme-mode-icon theme-mode-icon--auto" aria-hidden="true">
+              <span class="theme-auto-icon"></span>
+            </span>
+            <span class="theme-mode-icon theme-mode-icon--light" aria-hidden="true">☀</span>
+            <span class="theme-mode-icon theme-mode-icon--dark" aria-hidden="true">☾</span>
+            <span class="theme-mode-label">{{ ui.shared.theme.auto }}</span>
+          </span>
+        </button>
+      </div>
+      {% endif %}
+      <button id="nav-toggle" class="dib dn-ns bn bg-transparent pa2 pointer{% if showThemeSelectors %} ml3{% endif %} mt2 mt0-ns" aria-expanded="false" aria-controls="sidebar">
+        <div class="burger">
+          <div class="top-bun"></div>
+          <div class="patty"></div>
+          <div class="bottom-bun"></div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="flex flex-column flex-row-ns">
+    <!-- Sidebar nav: hidden on mobile until toggle; no background color -->
+    <nav id="sidebar" class="dn db-ns w-100 w-25-ns pa4">
+      {% macro renderNavItem(item) %}
+        {% set isHomeTarget = item.id == homeTargetId %}
+        {% set itemUrl = '/' if isHomeTarget else item.url %}
+        {% set activePatterns = item.activePatterns if item.activePatterns is defined else [{'type': 'equals', 'value': item.url}] %}
+        {% set isActive = false %}
+        {% if isHomeTarget and currentUrl == '/' %}
+          {% set isActive = true %}
+        {% endif %}
+        {% for rule in activePatterns %}
+          {% if not isActive %}
+            {% if rule.type == 'equals' and currentUrl == rule.value %}
+              {% set isActive = true %}
+            {% elseif rule.type == 'startsWith' and rule.value and currentUrl.startsWith(rule.value) %}
+              {% set isActive = true %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {% if not item.hidden and not (item.id == 'drafts' and environment == 'production') and not (item.id == 'timeline' and not site.timeline.showInNav) %}
+          {% set displayLabel = item.label %}
+          {% if item.id == 'drafts' %}
+            {% set draftCount = (collections.drafts | default([])) | length %}
+            {% set displayLabel = item.label ~ ': ' ~ draftCount %}
+          {% endif %}
+          <li class="mb3 w-100">
+            <a href="{{ itemUrl }}"
+               class="db pa1 link dim f4 lh-copy tr tl-ns theme-text{% if isActive %} underline{% endif %}"
+               {% if isActive %}aria-current="page"{% endif %}>
+              {{ displayLabel }}
+            </a>
+          </li>
+        {% endif %}
+      {% endmacro %}
+      <ul class="list pl0 ma0 pa0 flex flex-column lh-copy items-end">
+        {% for item in sidebarNav %}
+          {% if item.id == homeTargetId %}{{ renderNavItem(item) }}{% endif %}
+        {% endfor %}
+        {% for item in sidebarNav %}
+          {% if item.id != homeTargetId %}{{ renderNavItem(item) }}{% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main class="w-100 w-75-ns pa4 lh-copy">
+      {% if showPostHeader %}
+        <header class="mb4">
+          {% if page.date %}
+            <p class="f6 ttu tracked theme-midtone mt0 mb2">
+              <time datetime="{{ page.date | machineDate }}">{{ page.date | readableDate }}</time>
+            </p>
+          {% endif %}
+          {% if title %}
+            <h1 class="f2 lh-title mt0 mb3">{{ title }}</h1>
+          {% endif %}
+          {% set seriesLinks = contentSeries | default([]) %}
+          {% if (isPostDetailPage or isNoteDetailPage or isTimelineDetailPage) and seriesLinks | length %}
+            <div class="pa3 ba b--black-10 br3 bg-white-20">
+              <p class="f6 ttu tracked theme-midtone mt0 mb2">{{ ui.shared.series.partOf }}</p>
+              <ul class="list pl0 ma0">
+                {% for seriesItem in seriesLinks %}
+                  <li{% if not loop.last %} class="mb2"{% endif %}>
+                    <a class="link dim fw6 theme-text underline" href="{{ seriesItem.url | url }}">
+                      {{ seriesItem.title }}
+                    </a>
+                    <span class="theme-midtone">
+                      ({{ seriesItem.position }} {{ ui.shared.pagination.of }} {{ seriesItem.total }})
+                    </span>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+          {% endif %}
+        </header>
+      {% endif %}
+      <heading-anchors>
+        {{ content | safe }}
+      </heading-anchors>
+      {% if isTimelineDetailPage and (timelineEarlierThread | length or timelineFollowUpTree | length) %}
+        {% set timelineUi = ui.pages.timeline %}
+        <section class="timeline-thread">
+          {% if timelineEarlierThread | length %}
+            <div class="timeline-thread__branch timeline-thread__branch--parent">
+              <p class="timeline-thread__label">{{ timelineUi.thread.earlierInThread }}</p>
+              <div class="timeline-thread__stack">
+                {% for earlierEntry in timelineEarlierThread %}
+                  {{ renderTimelineEntry(earlierEntry, timelineEntries, true, false, true, true) | safe }}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if timelineFollowUpTree | length %}
+            <div id="timeline-children" class="timeline-thread__branch timeline-thread__branch--children">
+              <p class="timeline-thread__label">{{ timelineUi.thread.followUps }}</p>
+              <div class="timeline-thread__stack">
+                {% for childNode in timelineFollowUpTree %}
+                  <div class="timeline-thread__node">
+                    {{ renderTimelineEntry(childNode.entry, timelineEntries, true, false, true, false) | safe }}
+                    {% if childNode.children | length %}
+                      <div class="timeline-thread__stack timeline-thread__stack--nested">
+                        {% for grandchildNode in childNode.children %}
+                          <div class="timeline-thread__node">
+                            {{ renderTimelineEntry(grandchildNode.entry, timelineEntries, true, false, true, false) | safe }}
+                            {% if grandchildNode.continues %}
+                              <p class="timeline-thread__continues">
+                                <a href="{{ grandchildNode.entry.url | url }}#timeline-children">{{ timelineUi.thread.continues }}</a>
+                              </p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+      {% if isArticlePage and showComments and giscusConfig.repo %}
+        <script src="https://giscus.app/client.js"
+                data-repo="{{ giscusConfig.repo }}"
+                data-repo-id="{{ giscusConfig.repoId }}"
+                data-category="{{ giscusConfig.category }}"
+                data-category-id="{{ giscusConfig.categoryId }}"
+                data-mapping="{{ giscusConfig.mapping | default('pathname') }}"
+                data-strict="0"
+                data-reactions-enabled="1"
+                data-emit-metadata="0"
+                data-input-position="top"
+                data-theme="preferred_color_scheme"
+                data-lang="en"
+                crossorigin="anonymous"
+                async>
+        </script>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('nav-toggle');
+    const sidebar = document.getElementById('sidebar');
+
+    btn.addEventListener('click', function() {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      btn.classList.toggle('opened', !isOpen);
+
+      if (!isOpen) {
+        sidebar.classList.remove('dn', 'slide-fade-out');
+        sidebar.classList.add('slide-fade-in');
+      } else {
+        sidebar.classList.remove('slide-fade-in');
+        sidebar.classList.add('slide-fade-out');
+        sidebar.addEventListener('animationend', function handler() {
+          sidebar.classList.add('dn');
+          sidebar.removeEventListener('animationend', handler);
+        });
+      }
+    });
+  });
+</script>

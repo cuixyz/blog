@@ -1,0 +1,15 @@
+---
+layout: layouts/home.njk
+permalink: /notes/hidden/
+comments: false
+eleventyComputed:
+  title: "{{ ui.pages.hiddenNotes.title }}"
+  description: "{{ ui.pages.hiddenNotes.description }}"
+---
+
+{% from "components/post-list.njk" import renderPostList with context %}
+
+<section class="mw7 center">
+  <h1 class="f3 f2-ns lh-title mt0 mb0">{{ ui.pages.hiddenNotes.heading }}</h1>
+  {{ renderPostList(collections.hiddenNotes, ui.pages.hiddenNotes.emptyMessage) | safe }}
+</section>

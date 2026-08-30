@@ -1,0 +1,74 @@
+# https://tachyons.io/docs/themes/skins/
+
+- id: sun
+  label: Sun (black / washed-yellow)
+  classes:
+    - black
+    - bg-washed-yellow
+  midtoneClass: gold
+  accent: "#E7040F"
+  project:
+    tagActiveColor: "#ECE9E9"
+- id: default
+  label: Default
+  classes:
+    - black
+    - bg-white
+  midtoneClass: mid-gray
+  accent: "#00449E"
+  project:
+    tagActiveColor: "#ECE9E9"
+- id: mint
+  label: Mint (black / washed-green)
+  classes:
+    - black
+    - bg-washed-green
+  midtoneClass: dark-green
+  accent: "#137752"
+  project:
+    tagActiveColor: "#ECE9E9"
+- id: grape
+  label: Grape (near-white / purple)
+  classes:
+    - near-white
+    - bg-purple
+  midtoneClass: light-purple
+  accent: "#FFA3D7"
+  project:
+    tagActiveColor: "#2D113B"
+- id: charcoal
+  label: Charcoal (near-white / mid-gray)
+  classes:
+    - near-white
+    - bg-mid-gray
+  midtoneClass: light-silver
+  accent: "#CCCCCC"
+  project:
+    tagActiveColor: "#1A1A1A"
+- id: deep-blue
+  label: Deep Blue (white / dark-blue)
+  classes:
+    - white
+    - bg-dark-blue
+  midtoneClass: light-blue
+  accent: "#CDECFF"
+  project:
+    tagActiveColor: "#012A63"
+- id: midnight
+  label: Midnight (near-white / navy)
+  classes:
+    - near-white
+    - bg-navy
+  midtoneClass: moon-gray
+  accent: "#96CCFF"
+  project:
+    tagActiveColor: "#001B44"
+- id: terminal
+  label: Terminal (green / near-black)
+  classes:
+    - near-white
+    - bg-near-black
+  midtoneClass: light-green
+  accent: "#33FF66"
+  project:
+    tagActiveColor: "#0A2A0A"

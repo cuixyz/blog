@@ -1,0 +1,40 @@
+{% macro renderPostList(items=[], emptyMessage=ui.shared.postList.emptyDefault, reverse=true) %}
+  {% set list = items or [] %}
+  {% if list | length %}
+    <div class="flex flex-column">
+      {% for item in (list | reverse if reverse else list) %}
+        <article class="mb4 pb4 bb b--black-10">
+          <h2 class="f3 lh-title mb2">
+            <a class="link dim theme-text" href="{{ item.url | url }}">{{ item.data.title }}</a>
+          </h2>
+          {% if item.date %}
+            <p class="f6 theme-midtone mt0 mb3">
+              <time datetime="{{ item.date | machineDate }}">{{ item.date | readableDate }}</time>
+            </p>
+          {% endif %}
+          {% set itemTags = (item.data.tags | default([])) | filterTags %}
+          {% if itemTags | length %}
+            <ul class="list pl0 ma0 mb3 flex flex-wrap">
+              {% for tag in itemTags %}
+                <li class="mr2 mb2">
+                  <a class="link dim f6 theme-midtone ba b--black-20 br-pill ph2 pv1" href="/tags/{{ tag | slug }}/">
+                    #{{ tag }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <div class="lh-copy">
+            {% if item.data.excerpt %}
+              {{ item.data.excerpt | safe }}
+            {% else %}
+              {{ item.templateContent | excerpt(2) | safe }}
+            {% endif %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="theme-midtone">{{ emptyMessage }}</p>
+  {% endif %}
+{% endmacro %}

@@ -1,0 +1,19 @@
+featuredTags:
+  - timeline-page
+
+categories:
+  - tag: shipped
+    label: Shipped
+    color: "#27ae60"
+  - tag: published
+    label: Published
+    color: "#2980b9"
+  - tag: wip
+    label: WIP
+    color: "#8e44ad"
+  - tag: idea
+    label: Idea
+    color: "#f1c40f"
+  - tag: thinking
+    label: Thinking
+    color: "#e67e22"

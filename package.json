@@ -1,0 +1,58 @@
+{
+  "name": "11ty-subspace-builder",
+  "version": "1.39.0",
+  "private": true,
+  "workspaces": [
+    "tools/*"
+  ],
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ELEVENTY_ENV=development eleventy --serve",
+    "prod": "ELEVENTY_ENV=production eleventy --serve",
+    "build": "ELEVENTY_ENV=production eleventy",
+    "format": "prettier --write \"**/*.{js,css,md}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install chromium",
+    "starter:reset": "node ./scripts/starter-reset.js",
+    "starter:nicholas": "node ./scripts/starter-reset.js --keep-personal-branding",
+    "fix-lfs": "git lfs fetch upstream --all && git lfs push origin --all && git lfs pull",
+    "og": "node ./scripts/generate-og-images.js",
+    "tracker": "npm run --workspace post-share-tracker start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@11ty/eleventy": "^3.1.6",
+    "@11ty/eleventy-img": "^6.0.4",
+    "@11ty/eleventy-navigation": "^1.0.4",
+    "@11ty/eleventy-plugin-rss": "^3.0.0",
+    "js-yaml": "^4.2.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-toc-done-right": "^4.2.0",
+    "slugify": "^1.6.6"
+  },
+  "devDependencies": {
+    "@11ty/eleventy-fetch": "^5.1.0",
+    "@fontsource/inter": "^5.0.18",
+    "@fontsource/lexend": "^5.0.18",
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@fontsource/noto-sans-tc": "^5.2.9",
+    "@playwright/test": "^1.60.0",
+    "@resvg/resvg-js": "^2.6.0",
+    "gray-matter": "^4.0.3",
+    "highlight.js": "^11.11.1",
+    "http-server": "^14.1.1",
+    "linkedom": "^0.18.12",
+    "prettier": "^3.8.4",
+    "satori": "^0.26.0",
+    "satori-html": "^0.3.2",
+    "vitest": "^4.1.8"
+  }
+}

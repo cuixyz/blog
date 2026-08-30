@@ -1,0 +1,69 @@
+{% from "components/tag-chip.njk" import renderTagChip %}
+
+{% macro renderProjectCard(project) %}
+  {% set tagSlugs = project.tagSlugs or [] %}
+  {% set tags = project.tags or [] %}
+  {% set image = project.image or {} %}
+  {% set imageFit = image.fit or 'cover' %}
+  {% set primaryLink = project.url or project.repo or project.timeline %}
+  <article
+    class="project-card"
+    data-project-card
+    data-tags="{{ tagSlugs | join(',') }}"
+  >
+    {% if image.src %}
+      <figure class="project-card__media{% if imageFit == 'contain' %} project-card__media--contain{% endif %}">
+        <img
+          src="{{ image.src }}"
+          alt="{{ image.alt or (project.name ~ ' ' ~ ui.shared.projectCard.imageAltSuffix) }}"
+          loading="lazy"
+          decoding="async"
+        >
+      </figure>
+    {% endif %}
+    <div class="project-card__body">
+      <header class="project-card__header">
+        <h3 class="project-card__title theme-text">
+          {% if primaryLink %}
+            <a class="project-card__title-link" href="{{ primaryLink }}">{{ project.name }}</a>
+          {% else %}
+            {{ project.name }}
+          {% endif %}
+        </h3>
+      </header>
+      {% if project.summary %}
+        <p class="project-card__summary mt3 mb3 theme-text">
+          {{ project.summary }}
+        </p>
+      {% endif %}
+      {% if project.repo or project.url or project.timeline %}
+        <div class="project-card__links mt0 mb3">
+          {% if project.url %}
+            <div class="project-card__link-item">
+              <a class="project-card__url link dim" href="{{ project.url }}">{{ ui.shared.projectCard.links.external }}</a>
+            </div>
+          {% endif %}
+          {% if project.timeline %}
+            <div class="project-card__link-item">
+              <a class="project-card__timeline link dim" href="{{ project.timeline }}">{{ ui.shared.projectCard.links.timeline }}</a>
+            </div>
+          {% endif %}
+          {% if project.repo %}
+            <div class="project-card__link-item">
+              <a class="project-card__repo link dim" href="{{ project.repo }}">{{ ui.shared.projectCard.links.repository }}</a>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if tags | length %}
+        <div class="project-card__tags flex flex-wrap" data-project-card-tags>
+          {% for tag in tags %}
+            {{ renderTagChip(tag.label, tag.slug, {
+              class: 'project-tag--compact mr2 mb2'
+            }) }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </article>
+{% endmacro %}

@@ -1,0 +1,158 @@
+<link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
+<link rel="stylesheet" href="{{ '/assets/css/code-embeds.css' | assetUrl }}"/>
+<link rel="stylesheet" href="{{ '/assets/css/highlight-github.css' | assetUrl }}"/>
+{% set defaultAccent = defaultTheme.accent if defaultTheme.accent is defined else '#00449E' %}
+<style>
+	html.theme {
+		transition: background-color {{ transitionDuration }} {{ transitionTimingFunction }}, color {{ transitionDuration }} {{ transitionTimingFunction }};
+	}
+	html.theme .theme-text,
+	html.theme a,
+	html.theme [data-theme-preview] span {
+		transition: color {{ transitionDuration }} {{ transitionTimingFunction }}, background-color {{ transitionDuration }} {{ transitionTimingFunction }};
+	}
+	html.theme .theme-midtone {
+		transition: color {{ transitionDuration }} {{ transitionTimingFunction }};
+	}
+	html.theme {
+		--accent: {{ defaultAccent }};
+		--accent-hover: var(--accent);
+	}
+	@media screen {
+		{% for theme in themes %}
+		{% set projectConfig = theme.project if theme.project is defined else {} %}
+		html.theme[data-theme="{{ theme.id }}"] {
+			--accent: {{ theme.accent | default(defaultAccent) }};
+			{% if projectConfig.tagActiveColor %}
+			--project-tag-active-color: {{ projectConfig.tagActiveColor }};
+			{% endif %}
+		}
+		{% endfor %}
+	}
+	@supports (color: color-mix(in srgb, #000 0%, #fff 100%)) {
+		html.theme {
+			--accent-hover: color-mix(in srgb, var(--accent) 80%, white 20%);
+		}
+	}
+	@supports (color: lch(50% 0 0)) {
+		html.theme {
+			--accent-hover: lch(from var(--accent) calc(l + 20) c h);
+		}
+	}
+	html.theme .theme-midtone {
+		color: var(--accent);
+	}
+	html.theme a,
+	html.theme a:visited {
+		color: var(--accent);
+	}
+	html.theme a:hover,
+	html.theme a:focus {
+		color: var(--accent-hover);
+	}
+	html.theme a:focus-visible {
+		outline-color: var(--accent);
+	}
+	html.theme blockquote.todo-quote {
+		--todo-quote-bg: var(--accent);
+		--todo-quote-fg: #fff;
+		background: var(--todo-quote-bg);
+		color: var(--todo-quote-fg);
+		border-left: 0.4rem solid var(--todo-quote-fg);
+		border-radius: 0.5rem;
+		padding: 1rem 1.25rem;
+		margin-left: 0;
+		margin-right: 0;
+		box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--todo-quote-bg) 70%, transparent);
+	}
+	html.theme blockquote.todo-quote a,
+	html.theme blockquote.todo-quote a:visited {
+		color: inherit;
+	}
+	html.theme blockquote.todo-quote.prod {
+		display: none !important;
+	}
+	html.theme.black blockquote.todo-quote {
+		--todo-quote-fg: #fff;
+	}
+	html.theme.near-white blockquote.todo-quote,
+	html.theme.white blockquote.todo-quote {
+		--todo-quote-fg: #111;
+	}
+	html.theme .footnotes {
+		margin-top: 2rem;
+		padding-top: 1rem;
+		border-top: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+		font-size: 0.95rem;
+	}
+	html.theme .footnotes-sep {
+		display: none;
+	}
+	html.theme .footnotes-list {
+		counter-reset: footnotes;
+		list-style: none;
+		padding-left: 0;
+		margin: 0.75rem 0 0;
+	}
+	html.theme .footnote-item {
+		counter-increment: footnotes;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: 0.55rem;
+		align-items: baseline;
+		padding: 0.25rem 0.45rem;
+		margin: 0.35rem 0;
+	}
+	html.theme .footnote-item::before {
+		content: counter(footnotes) ".";
+		grid-column: 1;
+		grid-row: 1;
+	}
+	html.theme .footnote-item > p {
+		grid-column: 2;
+		margin: 0;
+	}
+	html.theme .footnote-item:target {
+		outline: 3px solid var(--footnote-target-outline, var(--accent));
+		outline-offset: 0.2rem;
+		border-radius: 0.35rem;
+	}
+	html.theme .footnote-ref,
+	html.theme .footnote-backref {
+		text-decoration: none;
+		font-weight: 700;
+	}
+	html.theme .footnote-ref {
+		font-size: 0.8em;
+		vertical-align: super;
+	}
+	html.theme .footnote-backref {
+		margin-left: 0.25rem;
+	}
+	html.theme .footnote-ref a,
+	html.theme .footnote-backref {
+		color: var(--accent);
+	}
+	@supports (color: color-mix(in srgb, #000 0%, transparent)) {
+		html.theme {
+			--footnote-target-outline: color-mix(in srgb, var(--accent) 62%, transparent);
+		}
+	}
+	/*
+		Eleventy Img transform adds width/height attrs;
+		Reset the height so images stay proportional at narrow widths
+	*/
+	main table {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	main p a,
+	main li a,
+	main td a {
+		overflow-wrap: anywhere;
+		word-break: break-word;
+	}
+	img {
+		height: auto;
+	}
+</style>

@@ -1,0 +1,23 @@
+---
+layout: layouts/home.njk
+showPostHeader: false
+pagination:
+  data: collections.tagList
+  size: 1
+  alias: tag
+permalink: /tags/{{ tag | slug }}/
+eleventyComputed:
+  title: "{{ ui.pages.tags.taggedTitleTemplate | replace('{tag}', tag) }}"
+---
+
+{% from "components/post-list.njk" import renderPostList with context %}
+{% set tagItems = collections[tag] | default([]) %}
+{% set postCount = tagItems | length %}
+
+<section class="mw7 center">
+  <h1 class="f3 f2-ns lh-title mb2">{{ ui.pages.tags.taggedTitleTemplate | replace('{tag}', tag) }}</h1>
+  <p class="f6 f5-ns theme-midtone mt0 mb4">
+    {{ postCount }} {{ ui.shared.counts.entry.singular if postCount == 1 else ui.shared.counts.entry.plural }}
+  </p>
+  {{ renderPostList(tagItems, ui.pages.tags.emptyMessage) | safe }}
+</section>

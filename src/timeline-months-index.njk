@@ -1,0 +1,52 @@
+---
+layout: layouts/home.njk
+showPostHeader: false
+permalink: /timeline/months/
+eleventyComputed:
+  title: "{{ ui.pages.timeline.monthsIndex.title }}"
+  description: "{{ ui.pages.timeline.monthsIndex.description }}"
+---
+
+{% from "components/timeline-week-pill.njk" import renderTimelineWeekPill %}
+
+{% set timelineUi = ui.pages.timeline %}
+{% set timelineMonthArchives = collections.timelineMonths | default([]) | reverse %}
+
+<section class="mw7">
+  <h1 class="f3 f2-ns lh-title mt0 mb4">
+    <a class="link dim theme-text" href="{{ sectionUrls.timeline }}">{{ timelineUi.labels.root }}</a>
+  </h1>
+  <h2 class="f3 f2-ns lh-title mt0 mb2">{{ timelineUi.monthsIndex.title }}</h2>
+  <p class="f6 f5-ns theme-midtone mt0 mb4">
+    {{ timelineUi.monthsIndex.intro }}
+  </p>
+
+  {% if timelineMonthArchives | length %}
+    <div>
+      {% for month in timelineMonthArchives %}
+        <section class="{% if not loop.first %}mt5{% endif %}">
+          <h2 class="f4 f3-ns lh-title mt0 mb2">{{ month.label }}</h2>
+          <p class="f6 theme-midtone mt0 mb3">
+            {{ month.entries | length }} {{ timelineUi.entryCount.singular if month.entries | length == 1 else timelineUi.entryCount.plural }}
+          </p>
+
+          <div class="mb3">
+            <a class="timeline-relationship mr2 mb2" href="/timeline/months/{{ month.key }}/">
+              {{ month.label }} ({{ month.entries | length }})
+            </a>
+          </div>
+
+          {% if month.weeks | length %}
+            <div class="flex flex-wrap">
+              {% for week in month.weeks | reverse %}
+                {{ renderTimelineWeekPill(week, week.entryCount) }}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="theme-midtone">{{ timelineUi.emptyMessages.monthsIndex }}</p>
+  {% endif %}
+</section>

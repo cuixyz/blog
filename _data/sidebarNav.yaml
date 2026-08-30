@@ -1,0 +1,53 @@
+---
+- id: blog
+  label: Blog
+  url: /blog/
+  activePatterns:
+    - type: equals
+      value: /blog/
+    - type: startsWith
+      value: /blog/
+    - type: startsWith
+      value: /posts/
+- id: notes
+  label: Notes
+  url: /notes/
+  activePatterns:
+    - type: equals
+      value: /notes/
+    - type: startsWith
+      value: /notes/
+- id: series
+  label: Series
+  url: /series/
+  activePatterns:
+    - type: startsWith
+      value: /series/
+- id: drafts
+  label: Drafts
+  url: /drafts/
+  activePatterns:
+    - type: equals
+      value: /drafts/
+    - type: startsWith
+      value: /drafts/
+- id: projects
+  label: Projects
+  url: /projects/
+- id: tags
+  label: Tags
+  url: /tags/
+  activePatterns:
+    - type: startsWith
+      value: /tags/
+- id: timeline
+  label: Timeline
+  url: /timeline/
+  activePatterns:
+    - type: equals
+      value: /timeline/
+    - type: startsWith
+      value: /timeline/
+- id: about
+  label: About
+  url: /about/

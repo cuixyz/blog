@@ -1,0 +1,14 @@
+---
+layout: layouts/home.njk
+eleventyComputed:
+  permalink: "{{ '/' if site.home.target == 'notes' else '/notes/' }}"
+  title: "{{ ui.pages.notes.title }}"
+  description: "{{ ui.pages.notes.description }}"
+---
+
+{% from "components/post-list.njk" import renderPostList with context %}
+
+<section class="mw7 center">
+  <h1 class="f3 f2-ns lh-title mt0 mb0">{{ ui.pages.notes.heading }}</h1>
+  {{ renderPostList(collections.notes, ui.pages.notes.emptyMessage) | safe }}
+</section>

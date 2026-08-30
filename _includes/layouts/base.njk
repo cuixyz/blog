@@ -1,0 +1,97 @@
+{% set siteThemeConfig = site.theme or {} %}
+{% set configuredDefaultThemeId = siteThemeConfig.defaultId %}
+{% set defaultTheme = themes | first %}
+{% if configuredDefaultThemeId %}
+	{% for theme in themes  %}
+		{% if theme.id == configuredDefaultThemeId %}
+			{% set defaultTheme = theme %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% set defaultThemeClasses = defaultTheme.classes | join(' ') %}
+{% set defaultThemeMidtoneClass = defaultTheme.midtoneClass if defaultTheme.midtoneClass is defined else 'mid-gray' %}
+{% set autoLightTheme = defaultTheme %}
+{% set autoDarkTheme = defaultTheme %}
+{% set configuredAutoLightThemeId = siteThemeConfig.autoLightId %}
+{% set configuredAutoDarkThemeId = siteThemeConfig.autoDarkId %}
+{% if configuredAutoLightThemeId %}
+	{% for theme in themes %}
+		{% if theme.id == configuredAutoLightThemeId %}
+			{% set autoLightTheme = theme %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% if configuredAutoDarkThemeId %}
+	{% for theme in themes %}
+		{% if theme.id == configuredAutoDarkThemeId %}
+			{% set autoDarkTheme = theme %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+{% set previewResetDelay = siteThemeConfig.previewResetDelay if siteThemeConfig.previewResetDelay is defined else 200 %}
+{% set transitionDuration = siteThemeConfig.transitionDuration if siteThemeConfig.transitionDuration is defined else '0.35s' %}
+{% set transitionTimingFunction = siteThemeConfig.transitionTimingFunction if siteThemeConfig.transitionTimingFunction is defined else 'ease' %}
+{% set siteTitle = site.title or metadata.title %}
+{% set rawTitle = title or siteTitle %}
+{% if title and siteTitle and title != siteTitle %}
+	{% set rawTitle = title ~ " · " ~ siteTitle %}
+{% endif %}
+{% set contentExcerpt = '' %}
+{% if content is defined %}
+	{% set contentExcerpt = content | excerpt(2) | default('') %}
+{% endif %}
+{% set rawDescription = description or excerpt or contentExcerpt or metadata.description %}
+{% set pageDescription = rawDescription | striptags | replace('\n', ' ') | trim %}
+{% set canonicalUrl = null %}
+{% if page.url %}
+	{% set canonicalUrl = page.url | absoluteUrl(site.url) %}
+{% endif %}
+{% set ogImageUrl = null %}
+{% if ogImage %}
+	{% set ogImageUrl = ogImage | absoluteUrl(site.url) %}
+{% endif %}
+{% set ogType = 'website' %}
+{% if page.filePathStem and (page.filePathStem.indexOf('/posts/') == 0 or page.filePathStem.indexOf('/notes/') == 0) %}
+	{% set ogType = 'article' %}
+{% endif %}
+{% set twitterCard = 'summary' %}
+{% if ogImageUrl %}
+	{% set twitterCard = 'summary_large_image' %}
+{% endif %}
+<!doctype html>
+<html lang="{{ metadata.language }}" class="theme {{ defaultThemeClasses }}" data-theme="{{ defaultTheme.id }}" data-default-theme="{{ defaultTheme.id }}" data-auto-light-theme="{{ autoLightTheme.id }}" data-auto-dark-theme="{{ autoDarkTheme.id }}" data-theme-preference="auto">
+<head>
+	{% include "layouts/partials/head-seo.njk" %}
+	{% include "layouts/partials/theme-styles.njk" %}
+	{% include "layouts/partials/theme-init-script.njk" %}
+
+	{% if environment != 'development' %}
+		{% include "layouts/partials/analytics-tracking-script.njk" %}
+	{% endif %}
+
+	{# Optional Mastodon verification link #}
+	{% set mastodonConfig = site.mastodon if site.mastodon is defined else {} %}
+	{% set mastodonRelMe = mastodonConfig.relMe if mastodonConfig.relMe is defined else {} %}
+	{% if mastodonRelMe.enabled and mastodonRelMe.url %}
+		<link rel="me" href="{{ mastodonRelMe.url }}">
+	{% endif %}
+	{% set pageStylesheets = stylesheets if stylesheets is defined else [] %}
+	{% if pageStylesheets %}
+		{% for href in pageStylesheets %}
+			<link rel="stylesheet" href="{{ href | assetUrl }}">
+		{% endfor %}
+	{% endif %}
+
+</head>
+<body>
+	{{ content | safe }}
+	{% include "layouts/partials/theme-preview-script.njk" %}
+	{% set pageScripts = scripts if scripts is defined else [] %}
+	{% if pageScripts %}
+		{% for script in pageScripts %}
+			<script src="{{ script }}" defer></script>
+		{% endfor %}
+	{% endif %}
+	<script src="/assets/js/copy.js" defer></script>
+</body>
+</html>

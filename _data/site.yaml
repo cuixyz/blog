@@ -1,0 +1,58 @@
+title: 11ty Subspace Builder
+url: https://subspace-builder.nicholas.clooney.io
+
+author:
+  name: Nicholas Clooney
+  email: not-gonna-tell-you@nicholas-clooney.simplelogin.com # 😉 You can still reach me.
+
+theme:
+  showSelectors: true
+  previewResetDelay: 500
+  previewHoverDelay: 500
+  transitionDuration: 0.5s
+   # all options: linear, ease, ease-in, ease-out, ease-in-out
+  transitionTimingFunction: ease-in-out
+  defaultId: sun
+  autoLightId: sun
+  autoDarkId: terminal
+
+githubEmbed:
+  collapseLineThreshold: 15
+
+codeBlock:
+  collapseLineThreshold: 15
+  copyButtonLineThreshold: 10
+
+ogImage:
+  staticEntries:
+    - key: /timeline
+      slug: timeline
+      title: Timeline
+      excerpt: A personal timeline log, color-coded by entry type.
+
+# tracking with umami
+umami:
+  source: https://analytics.clooney.ninja/script.js
+  id: 3bc809cb-ff21-4420-8636-99a8c7eecfed
+
+# giscus comments system
+# get your config here: https://giscus.app/
+giscus:
+  repo: TheClooneyCollection/11ty-subspace-builder
+  repoId: R_kgDOOtI2Pw
+  category: Announcements
+  categoryId: DIC_kwDOOtI2P84CwAOl
+  mapping: og:title
+
+# choose which sidebarNav entry renders at /
+home:
+  target: blog # id matching a sidebarNav entry whose page should render at /
+
+timeline:
+  showInNav: true  # set to true to show Timeline in the sidebar nav
+
+# social identity verification
+mastodon:
+  relMe:
+    enabled: true
+    url: https://mastodon.social/@NicholasClooney
