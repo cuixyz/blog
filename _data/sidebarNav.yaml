@@ -17,12 +17,6 @@
       value: /notes/
     - type: startsWith
       value: /notes/
-- id: series
-  label: Series
-  url: /series/
-  activePatterns:
-    - type: startsWith
-      value: /series/
 - id: drafts
   label: Drafts
   url: /drafts/
@@ -31,9 +25,6 @@
       value: /drafts/
     - type: startsWith
       value: /drafts/
-- id: projects
-  label: Projects
-  url: /projects/
 - id: tags
   label: Tags
   url: /tags/
