@@ -633,8 +633,4 @@ export default function (eleventyConfig) {
       await import('./scripts/generate-og-images.js');
     await generateOgImages({ force: OG_FORCE_ENV });
   });
-	// ← 在这里（函数体最后、右花括号之前）加：
-  return {
-    pathPrefix: "/blog/",   // 换成你实际部署的子路径
-  };
 }
