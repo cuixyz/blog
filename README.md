@@ -1,4 +1,4 @@
-# 11ty Subspace Builder
+# CXYZ
 
 A warp-speed Eleventy blog starter powered by Tachyons utility classes. It ships with theme switching, accessible navigation, and a flexible layout that adapts to small and large viewports.
 
