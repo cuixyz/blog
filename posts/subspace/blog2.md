@@ -9,3 +9,5 @@ share: "true"
 title: 第二篇
 ---
 空白
+![ 智慧的疆界：从图灵机到人工智能|200](https://cdn.weread.qq.com/weread/cover/92/YueWen_23637052/t6_YueWen_23637052.jpg)
+
